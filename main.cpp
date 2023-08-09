@@ -2,15 +2,15 @@
 #include "model.h"
 #include "our_gl.h"
 
-constexpr int width  = 800;      // output image size
-constexpr int height = 800;
-constexpr vec3 light_dir{1,1,1}; // light source
-constexpr vec3       eye{1,1,3}; // camera position
-constexpr vec3    center{0,0,0}; // camera direction
-constexpr vec3        up{0,1,0}; // camera up vector
+constexpr int   g_iRenderTgtW = 800; // output image size
+constexpr int   g_iRenderTgtH = 800;
+constexpr vec3  g_v3LitDir{1,1,1};   // light source
+constexpr vec3  g_v3CamPos{1,1,3};   // camera position
+constexpr vec3  g_v3CamDir{0,0,0};   // camera direction
+constexpr vec3  g_v3CamUp{0,1,0};    // camera camera vector
 
-extern mat<4,4> ModelView;       // "OpenGL" state matrices
-extern mat<4,4> Projection;
+extern mat<4,4> g_m4x4ModelView;     // "OpenGL" state matrices
+extern mat<4,4> g_m4x4Project;
 
 struct Shader : IShader {
     const Model &model;
@@ -20,15 +20,15 @@ struct Shader : IShader {
     mat<3,3> view_tri;    // triangle in view coordinates
 
     Shader(const Model &m) : model(m) {
-        uniform_l = proj<3>((ModelView*embed<4>(light_dir, 0.))).normalized(); // transform the light vector to view coordinates
+        uniform_l = proj<3>((g_m4x4ModelView*embed<4>(g_v3LitDir, 0.))).normalized(); // transform the light vector to view coordinates
     }
 
     virtual void vertex(const int iface, const int nthvert, vec4& gl_Position) {
         varying_uv.set_col(nthvert, model.uv(iface, nthvert));
-        varying_nrm.set_col(nthvert, proj<3>((ModelView).invert_transpose()*embed<4>(model.normal(iface, nthvert), 0.)));
-        gl_Position= ModelView*embed<4>(model.vert(iface, nthvert));
+        varying_nrm.set_col(nthvert, proj<3>((g_m4x4ModelView).invert_transpose()*embed<4>(model.normal(iface, nthvert), 0.)));
+        gl_Position= g_m4x4ModelView*embed<4>(model.vert(iface, nthvert));
         view_tri.set_col(nthvert, proj<3>(gl_Position));
-        gl_Position = Projection*gl_Position;
+        gl_Position = g_m4x4Project*gl_Position;
     }
 
     virtual bool fragment(const vec3 bar, TGAColor &gl_FragColor) {
@@ -62,11 +62,11 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    TGAImage framebuffer(width, height, TGAImage::RGB); // the output image
-    lookat(eye, center, up);                            // build the ModelView matrix
-    viewport(width/8, height/8, width*3/4, height*3/4); // build the Viewport matrix
-    projection((eye-center).norm());                    // build the Projection matrix
-    std::vector<double> zbuffer(width*height, std::numeric_limits<double>::max());
+    TGAImage sRenderTgt(g_iRenderTgtW, g_iRenderTgtH, TGAImage::RGB); // output image / render target
+    lookat(g_v3CamPos, g_v3CamDir, g_v3CamUp);                        // build the g_m4x4ModelView matrix
+    viewport(g_iRenderTgtW/8, g_iRenderTgtH/8, g_iRenderTgtW*3/4, g_iRenderTgtH*3/4); // build the Viewport matrix
+    projection((g_v3CamPos-g_v3CamDir).norm());                    // build the g_m4x4Project matrix
+    std::vector<double> zbuffer(g_iRenderTgtW*g_iRenderTgtH, std::numeric_limits<double>::max());
 
     for (int m=1; m<argc; m++) { // iterate through all input objects
         Model model(argv[m]);
@@ -75,10 +75,10 @@ int main(int argc, char** argv) {
             vec4 clip_vert[3]; // triangle coordinates (clip coordinates), written by VS, read by FS
             for (int j : {0,1,2})
                 shader.vertex(i, j, clip_vert[j]); // call the vertex shader for each triangle vertex
-            triangle(clip_vert, shader, framebuffer, zbuffer); // actual rasterization routine call
+            triangle(clip_vert, shader, sRenderTgt, zbuffer); // actual rasterization routine call
         }
     }
-    framebuffer.write_tga_file("framebuffer.tga");
+    sRenderTgt.write_tga_file("sRenderTgt.tga");
     return 0;
 }
 
