@@ -15,7 +15,7 @@ cmake --build . -j &&
 The rendered image is saved to `framebuffer.tga`.
 
 You can open the project in Gitpod or GitHub Codespaces
-[Open in Gitpod](https://gitpod.io/#https://github.com/johnsonzhuangsh/tinyrenderer) / [Open in Codespaces](https://fuzzy-sniffle-6v67j5wq5j524v9w.github.dev/)
+[Open in Gitpod](https://gitpod.io/start/#johnsonzhua-tinyrendere-nttaorv66bb) / [Open in Codespaces](https://fuzzy-sniffle-6v67j5wq5j524v9w.github.dev/)
 
 On open, the editor will compile & run the program as well as open the resulting image in the editor's preview.
 Just change the code in the editor and rerun the script (use the terminal's history) to see updated images.
