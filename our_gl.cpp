@@ -1,8 +1,8 @@
 #include "our_gl.h"
 
-mat<4,4> g_m4x4ModelView;
-mat<4,4> g_m4x4ViewPort;
-mat<4,4> g_m4x4Project;
+SMatrix<4,4> g_m4x4ModelView;
+SMatrix<4,4> g_m4x4ViewPort;
+SMatrix<4,4> g_m4x4Project;
 
 void viewport(const int x, const int y, const int w, const int h) {
     g_m4x4ViewPort = {{{w/2., 0, 0, x+w/2.}, {0, h/2., 0, y+h/2.}, {0,0,1,0}, {0,0,0,1}}};
@@ -16,13 +16,13 @@ void lookat(const vec3 eye, const vec3 center, const vec3 up) { // check https:/
     vec3 z = (center-eye).normalized();
     vec3 x =  cross(up,z).normalized();
     vec3 y =  cross(z, x).normalized();
-    mat<4,4> Minv = {{{x.x,x.y,x.z,0},   {y.x,y.y,y.z,0},   {z.x,z.y,z.z,0},   {0,0,0,1}}};
-    mat<4,4> Tr   = {{{1,0,0,-eye.x}, {0,1,0,-eye.y}, {0,0,1,-eye.z}, {0,0,0,1}}};
+    SMatrix<4,4> Minv = {{{x.x,x.y,x.z,0},   {y.x,y.y,y.z,0},   {z.x,z.y,z.z,0},   {0,0,0,1}}};
+    SMatrix<4,4> Tr   = {{{1,0,0,-eye.x}, {0,1,0,-eye.y}, {0,0,1,-eye.z}, {0,0,0,1}}};
     g_m4x4ModelView = Minv*Tr;
 }
 
 vec3 barycentric(const vec2 tri[3], const vec2 P) {
-    mat<3,3> ABC = {{embed<3>(tri[0]), embed<3>(tri[1]), embed<3>(tri[2])}};
+    SMatrix<3,3> ABC = {{embed<3>(tri[0]), embed<3>(tri[1]), embed<3>(tri[2])}};
     if (ABC.det()<1e-3) return {-1,1,1}; // for a degenerate triangle generate negative coordinates, it will be thrown away by the rasterizator
     return ABC.invert_transpose() * embed<3>(P);
 }

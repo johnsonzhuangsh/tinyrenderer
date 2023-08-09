@@ -9,15 +9,15 @@ constexpr vec3  g_v3CamPos{1,1,3};   // camera position
 constexpr vec3  g_v3CamDir{0,0,0};   // camera direction
 constexpr vec3  g_v3CamUp{0,1,0};    // camera camera vector
 
-extern mat<4,4> g_m4x4ModelView;     // "OpenGL" state matrices
-extern mat<4,4> g_m4x4Project;
+extern SMatrix<4,4> g_m4x4ModelView;     // "OpenGL" state matrices
+extern SMatrix<4,4> g_m4x4Project;
 
 struct Shader : IShader {
     const Model &model;
     vec3 uniform_l;       // light direction in view coordinates
-    mat<2,3> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
-    mat<3,3> varying_nrm; // normal per vertex to be interpolated by FS
-    mat<3,3> view_tri;    // triangle in view coordinates
+    SMatrix<2,3> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
+    SMatrix<3,3> varying_nrm; // normal per vertex to be interpolated by FS
+    SMatrix<3,3> view_tri;    // triangle in view coordinates
 
     Shader(const Model &m) : model(m) {
         uniform_l = proj<3>((g_m4x4ModelView*embed<4>(g_v3LitDir, 0.))).normalized(); // transform the light vector to view coordinates
@@ -37,10 +37,10 @@ struct Shader : IShader {
 
         // for the math refer to the tangent space normal mapping lecture
         // https://github.com/ssloy/tinyrenderer/wiki/Lesson-6bis-tangent-space-normal-mapping
-        mat<3,3> AI = mat<3,3>{ {view_tri.col(1) - view_tri.col(0), view_tri.col(2) - view_tri.col(0), bn} }.invert();
+        SMatrix<3,3> AI = SMatrix<3,3>{ {view_tri.col(1) - view_tri.col(0), view_tri.col(2) - view_tri.col(0), bn} }.invert();
         vec3 i = AI * vec3{varying_uv[0][1] - varying_uv[0][0], varying_uv[0][2] - varying_uv[0][0], 0};
         vec3 j = AI * vec3{varying_uv[1][1] - varying_uv[1][0], varying_uv[1][2] - varying_uv[1][0], 0};
-        mat<3,3> B = mat<3,3>{ {i.normalized(), j.normalized(), bn} }.transpose();
+        SMatrix<3,3> B = SMatrix<3,3>{ {i.normalized(), j.normalized(), bn} }.transpose();
 
         vec3 n = (B * model.normal(uv)).normalized(); // transform the normal from the texture to the tangent space
         double diff = std::max(0., n*uniform_l); // diffuse light intensity

@@ -89,7 +89,7 @@ vec3 cross(const vec3 &v1, const vec3 &v2);
 
 template<int n> struct dt;
 
-template<int nrows,int ncols> struct mat {
+template<int nrows,int ncols> struct SMatrix {
     vec<ncols> rows[nrows] = {{}};
 
           vec<ncols>& operator[] (const int idx)       { assert(idx>=0 && idx<nrows); return rows[idx]; }
@@ -107,8 +107,8 @@ template<int nrows,int ncols> struct mat {
         for (int i=nrows; i--; rows[i][idx]=v[i]);
     }
 
-    static mat<nrows,ncols> identity() {
-        mat<nrows,ncols> ret;
+    static SMatrix<nrows,ncols> identity() {
+        SMatrix<nrows,ncols> ret;
         for (int i=nrows; i--; )
             for (int j=ncols;j--; ret[i][j]=(i==j));
         return ret;
@@ -118,8 +118,8 @@ template<int nrows,int ncols> struct mat {
         return dt<ncols>::det(*this);
     }
 
-    mat<nrows-1,ncols-1> get_minor(const int row, const int col) const {
-        mat<nrows-1,ncols-1> ret;
+    SMatrix<nrows-1,ncols-1> get_minor(const int row, const int col) const {
+        SMatrix<nrows-1,ncols-1> ret;
         for (int i=nrows-1; i--; )
             for (int j=ncols-1;j--; ret[i][j]=rows[i<row?i:i+1][j<col?j:j+1]);
         return ret;
@@ -129,75 +129,75 @@ template<int nrows,int ncols> struct mat {
         return get_minor(row,col).det()*((row+col)%2 ? -1 : 1);
     }
 
-    mat<nrows,ncols> adjugate() const {
-        mat<nrows,ncols> ret;
+    SMatrix<nrows,ncols> adjugate() const {
+        SMatrix<nrows,ncols> ret;
         for (int i=nrows; i--; )
             for (int j=ncols; j--; ret[i][j]=cofactor(i,j));
         return ret;
     }
 
-    mat<nrows,ncols> invert_transpose() const {
-        mat<nrows,ncols> ret = adjugate();
+    SMatrix<nrows,ncols> invert_transpose() const {
+        SMatrix<nrows,ncols> ret = adjugate();
         return ret/(ret[0]*rows[0]);
     }
 
-    mat<nrows,ncols> invert() const {
+    SMatrix<nrows,ncols> invert() const {
         return invert_transpose().transpose();
     }
 
-    mat<ncols,nrows> transpose() const {
-        mat<ncols,nrows> ret;
+    SMatrix<ncols,nrows> transpose() const {
+        SMatrix<ncols,nrows> ret;
         for (int i=ncols; i--; ret[i]=this->col(i));
         return ret;
     }
 };
 
-template<int nrows,int ncols> vec<nrows> operator*(const mat<nrows,ncols>& lhs, const vec<ncols>& rhs) {
+template<int nrows,int ncols> vec<nrows> operator*(const SMatrix<nrows,ncols>& lhs, const vec<ncols>& rhs) {
     vec<nrows> ret;
     for (int i=nrows; i--; ret[i]=lhs[i]*rhs);
     return ret;
 }
 
-template<int R1,int C1,int C2>mat<R1,C2> operator*(const mat<R1,C1>& lhs, const mat<C1,C2>& rhs) {
-    mat<R1,C2> result;
+template<int R1,int C1,int C2>SMatrix<R1,C2> operator*(const SMatrix<R1,C1>& lhs, const SMatrix<C1,C2>& rhs) {
+    SMatrix<R1,C2> result;
     for (int i=R1; i--; )
         for (int j=C2; j--; result[i][j]=lhs[i]*rhs.col(j));
     return result;
 }
 
-template<int nrows,int ncols>mat<nrows,ncols> operator*(const mat<nrows,ncols>& lhs, const double& val) {
-    mat<nrows,ncols> result;
+template<int nrows,int ncols>SMatrix<nrows,ncols> operator*(const SMatrix<nrows,ncols>& lhs, const double& val) {
+    SMatrix<nrows,ncols> result;
     for (int i=nrows; i--; result[i] = lhs[i]*val);
     return result;
 }
 
-template<int nrows,int ncols>mat<nrows,ncols> operator/(const mat<nrows,ncols>& lhs, const double& val) {
-    mat<nrows,ncols> result;
+template<int nrows,int ncols>SMatrix<nrows,ncols> operator/(const SMatrix<nrows,ncols>& lhs, const double& val) {
+    SMatrix<nrows,ncols> result;
     for (int i=nrows; i--; result[i] = lhs[i]/val);
     return result;
 }
 
-template<int nrows,int ncols>mat<nrows,ncols> operator+(const mat<nrows,ncols>& lhs, const mat<nrows,ncols>& rhs) {
-    mat<nrows,ncols> result;
+template<int nrows,int ncols>SMatrix<nrows,ncols> operator+(const SMatrix<nrows,ncols>& lhs, const SMatrix<nrows,ncols>& rhs) {
+    SMatrix<nrows,ncols> result;
     for (int i=nrows; i--; )
         for (int j=ncols; j--; result[i][j]=lhs[i][j]+rhs[i][j]);
     return result;
 }
 
-template<int nrows,int ncols>mat<nrows,ncols> operator-(const mat<nrows,ncols>& lhs, const mat<nrows,ncols>& rhs) {
-    mat<nrows,ncols> result;
+template<int nrows,int ncols>SMatrix<nrows,ncols> operator-(const SMatrix<nrows,ncols>& lhs, const SMatrix<nrows,ncols>& rhs) {
+    SMatrix<nrows,ncols> result;
     for (int i=nrows; i--; )
         for (int j=ncols; j--; result[i][j]=lhs[i][j]-rhs[i][j]);
     return result;
 }
 
-template<int nrows,int ncols> std::ostream& operator<<(std::ostream& out, const mat<nrows,ncols>& m) {
+template<int nrows,int ncols> std::ostream& operator<<(std::ostream& out, const SMatrix<nrows,ncols>& m) {
     for (int i=0; i<nrows; i++) out << m[i] << std::endl;
     return out;
 }
 
 template<int n> struct dt {
-    static double det(const mat<n,n>& src) {
+    static double det(const SMatrix<n,n>& src) {
         double ret = 0;
         for (int i=n; i--; ret += src[0][i]*src.cofactor(0,i));
         return ret;
@@ -205,7 +205,7 @@ template<int n> struct dt {
 };
 
 template<> struct dt<1> {
-    static double det(const mat<1,1>& src) {
+    static double det(const SMatrix<1,1>& src) {
         return src[0][0];
     }
 };
