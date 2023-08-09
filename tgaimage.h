@@ -4,7 +4,7 @@
 #include <vector>
 
 #pragma pack(push,1)
-struct TGAHeader {
+struct STgaHeader {
     std::uint8_t  idlength = 0;
     std::uint8_t  colormaptype = 0;
     std::uint8_t  datatypecode = 0;

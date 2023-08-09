@@ -11,7 +11,7 @@ bool STgaImage::read_tga_file(const std::string filename) {
         std::cerr << "can't open file " << filename << "\n";
         return false;
     }
-    TGAHeader header;
+    STgaHeader header;
     in.read(reinterpret_cast<char *>(&header), sizeof(header));
     if (!in.good()) {
         std::cerr << "an error occured while reading the header\n";
@@ -108,7 +108,7 @@ bool STgaImage::write_tga_file(const std::string filename, const bool vflip, con
         std::cerr << "can't open file " << filename << "\n";
         return false;
     }
-    TGAHeader header = {};
+    STgaHeader header = {};
     header.bitsperpixel = bpp<<3;
     header.width  = w;
     header.height = h;

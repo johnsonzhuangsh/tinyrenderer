@@ -12,21 +12,21 @@ constexpr vec3  g_v3CamUp{0,1,0};    // camera camera vector
 extern SMatrix<4,4> g_m4x4ModelView;     // "OpenGL" state matrices
 extern SMatrix<4,4> g_m4x4Project;
 
-struct Shader : IShader {
-    const Model &model;
+struct Shader : SIShader {
+    const Model &cModel;
     vec3 uniform_l;       // light direction in view coordinates
-    SMatrix<2,3> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
+    SMatrix<2,3> varying_uv;  // triangle uv coordinates, written by the vertex sShader, read by the fragment sShader
     SMatrix<3,3> varying_nrm; // normal per vertex to be interpolated by FS
     SMatrix<3,3> view_tri;    // triangle in view coordinates
 
-    Shader(const Model &m) : model(m) {
+    Shader(const Model &m) : cModel(m) {
         uniform_l = proj<3>((g_m4x4ModelView*embed<4>(g_v3LitDir, 0.))).normalized(); // transform the light vector to view coordinates
     }
 
     virtual void vertex(const int iface, const int nthvert, vec4& gl_Position) {
-        varying_uv.set_col(nthvert, model.uv(iface, nthvert));
-        varying_nrm.set_col(nthvert, proj<3>((g_m4x4ModelView).invert_transpose()*embed<4>(model.normal(iface, nthvert), 0.)));
-        gl_Position= g_m4x4ModelView*embed<4>(model.vert(iface, nthvert));
+        varying_uv.set_col(nthvert, cModel.uv(iface, nthvert));
+        varying_nrm.set_col(nthvert, proj<3>((g_m4x4ModelView).invert_transpose()*embed<4>(cModel.normal(iface, nthvert), 0.)));
+        gl_Position= g_m4x4ModelView*embed<4>(cModel.vert(iface, nthvert));
         view_tri.set_col(nthvert, proj<3>(gl_Position));
         gl_Position = g_m4x4Project*gl_Position;
     }
@@ -42,12 +42,12 @@ struct Shader : IShader {
         vec3 j = AI * vec3{varying_uv[1][1] - varying_uv[1][0], varying_uv[1][2] - varying_uv[1][0], 0};
         SMatrix<3,3> B = SMatrix<3,3>{ {i.normalized(), j.normalized(), bn} }.transpose();
 
-        vec3 n = (B * model.normal(uv)).normalized(); // transform the normal from the texture to the tangent space
+        vec3 n = (B * cModel.normal(uv)).normalized(); // transform the normal from the texture to the tangent space
         double diff = std::max(0., n*uniform_l); // diffuse light intensity
         vec3 r = (n*(n*uniform_l)*2 - uniform_l).normalized(); // reflected light direction, specular mapping is described here: https://github.com/ssloy/tinyrenderer/wiki/Lesson-6-Shaders-for-the-software-renderer
-        double spec = std::pow(std::max(-r.z, 0.), 5+sample2D(model.specular(), uv)[0]); // specular intensity, note that the camera lies on the z-axis (in view), therefore simple -r.z
+        double spec = std::pow(std::max(-r.z, 0.), 5+sample2D(cModel.specular(), uv)[0]); // specular intensity, note that the camera lies on the z-axis (in view), therefore simple -r.z
 
-        STgaColor c = sample2D(model.diffuse(), uv);
+        STgaColor c = sample2D(cModel.diffuse(), uv);
         for (int i : {0,1,2})
             gl_FragColor[i] = std::min<int>(10 + c[i]*(diff + spec), 255); // (a bit of ambient light, diff + spec), clamp the result
 
@@ -58,27 +58,33 @@ struct Shader : IShader {
 int main(int argc, char** argv) {
     // CLI options checking
     if (2 > argc) {
-        std::cerr << "Usage: " << argv[0] << " ../obj/model.obj1 ../obj/model.obj2" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " ../obj/cModel.obj1 ../obj/cModel.obj2" << std::endl;
         return 1;
     }
 
-    STgaImage sRenderTgt(g_iRenderTgtW, g_iRenderTgtH, STgaImage::RGB); // output image / render target
-    lookat(g_v3CamPos, g_v3CamDir, g_v3CamUp);                        // build the g_m4x4ModelView matrix
-    viewport(g_iRenderTgtW/8, g_iRenderTgtH/8, g_iRenderTgtW*3/4, g_iRenderTgtH*3/4); // build the Viewport matrix
-    projection((g_v3CamPos-g_v3CamDir).norm());                    // build the g_m4x4Project matrix
-    std::vector<double> zbuffer(g_iRenderTgtW*g_iRenderTgtH, std::numeric_limits<double>::max());
+    // Prepare transformation matrixs + z/c buffers
+    CreateViewTransformMatrix(g_v3CamPos, g_v3CamDir, g_v3CamUp);        // build the view matrix
+    CreateViewportMatrix(g_iRenderTgtW/8, g_iRenderTgtH/8, g_iRenderTgtW*3/4, g_iRenderTgtH*3/4); // build the Viewport matrix
+    CreateProjectMatrix((g_v3CamPos-g_v3CamDir).norm());                 // build the g_m4x4Project matrix
 
-    for (int m=1; m<argc; m++) { // iterate through all input objects
-        Model model(argv[m]);
-        Shader shader(model);
-        for (int i=0; i<model.nfaces(); i++) { // for every triangle
-            vec4 clip_vert[3]; // triangle coordinates (clip coordinates), written by VS, read by FS
-            for (int j : {0,1,2})
-                shader.vertex(i, j, clip_vert[j]); // call the vertex shader for each triangle vertex
-            triangle(clip_vert, shader, sRenderTgt, zbuffer); // actual rasterization routine call
+    std::vector<double> vecZBuffer(g_iRenderTgtW*g_iRenderTgtH, std::numeric_limits<double>::max());
+    STgaImage sRenderTgt(g_iRenderTgtW, g_iRenderTgtH, STgaImage::RGB);  // output image / render target
+
+    // Rendering with SW pipeline
+    for (int iModelIdx = 1; iModelIdx < argc; iModelIdx++) {             // iterate through all input objects
+        Model cModel(argv[iModelIdx]);
+        Shader sShader(cModel);
+        for (int iFaceIdx = 0; iFaceIdx < cModel.nfaces(); iFaceIdx++) { // for every face/triangle
+            vec4 vecClipVtxs[3]; // triangle coordinates (clip coordinates), written by VS, read by PS
+            for (int iVtxIdx : {0,1,2})
+                sShader.vertex(iFaceIdx, iVtxIdx, vecClipVtxs[iVtxIdx]); // call VS for each triangle vertex
+            triangle(vecClipVtxs, sShader, sRenderTgt, vecZBuffer);      // actual rasterization routine call
         }
     }
+
+    // Output render target as TGA file
     sRenderTgt.write_tga_file("render_target.tga");
+
     return 0;
 }
 
