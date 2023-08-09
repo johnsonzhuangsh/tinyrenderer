@@ -2,7 +2,7 @@
 #include "model.h"
 #include "our_gl.h"
 
-constexpr int width  = 800; // output image size
+constexpr int width  = 800;      // output image size
 constexpr int height = 800;
 constexpr vec3 light_dir{1,1,1}; // light source
 constexpr vec3       eye{1,1,3}; // camera position
