@@ -5,13 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug",
-            "type": "gdb",
+            "name": "GDB Debug",
+            "type": "cppdbg",
             "request": "launch",
-            "target": "./build/tinyrenderer",
-            "cwd": "${workspaceRoot}",
-            "valuesFormatting": "parseText",
-            "stopOnEntry": true
+            "cwd": "${workspaceRoot}/build",
+            "program": "${workspaceRoot}/build/tinyrenderer",
+            "args": ["../obj/diablo3_pose/diablo3_pose.obj", "../obj/floor.obj"]
         }
     ]
 }

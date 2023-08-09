@@ -9,7 +9,7 @@ constexpr vec3       eye{1,1,3}; // camera position
 constexpr vec3    center{0,0,0}; // camera direction
 constexpr vec3        up{0,1,0}; // camera up vector
 
-extern mat<4,4> ModelView; // "OpenGL" state matrices
+extern mat<4,4> ModelView;       // "OpenGL" state matrices
 extern mat<4,4> Projection;
 
 struct Shader : IShader {
