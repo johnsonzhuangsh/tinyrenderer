@@ -2,9 +2,9 @@
 #include <cstring>
 #include "tgaimage.h"
 
-TGAImage::TGAImage(const int w, const int h, const int bpp) : w(w), h(h), bpp(bpp), data(w*h*bpp, 0) {}
+STgaImage::STgaImage(const int w, const int h, const int bpp) : w(w), h(h), bpp(bpp), data(w*h*bpp, 0) {}
 
-bool TGAImage::read_tga_file(const std::string filename) {
+bool STgaImage::read_tga_file(const std::string filename) {
     std::ifstream in;
     in.open(filename, std::ios::binary);
     if (!in.is_open()) {
@@ -49,11 +49,11 @@ bool TGAImage::read_tga_file(const std::string filename) {
     return true;
 }
 
-bool TGAImage::load_rle_data(std::ifstream &in) {
+bool STgaImage::load_rle_data(std::ifstream &in) {
     size_t pixelcount = w*h;
     size_t currentpixel = 0;
     size_t currentbyte  = 0;
-    TGAColor colorbuffer;
+    STgaColor colorbuffer;
     do {
         std::uint8_t chunkheader = 0;
         chunkheader = in.get();
@@ -98,7 +98,7 @@ bool TGAImage::load_rle_data(std::ifstream &in) {
     return true;
 }
 
-bool TGAImage::write_tga_file(const std::string filename, const bool vflip, const bool rle) const {
+bool STgaImage::write_tga_file(const std::string filename, const bool vflip, const bool rle) const {
     constexpr std::uint8_t developer_area_ref[4] = {0, 0, 0, 0};
     constexpr std::uint8_t extension_area_ref[4] = {0, 0, 0, 0};
     constexpr std::uint8_t footer[18] = {'T','R','U','E','V','I','S','I','O','N','-','X','F','I','L','E','.','\0'};
@@ -148,7 +148,7 @@ bool TGAImage::write_tga_file(const std::string filename, const bool vflip, cons
 }
 
 // TODO: it is not necessary to break a raw chunk for two equal pixels (for the matter of the resulting size)
-bool TGAImage::unload_rle_data(std::ofstream &out) const {
+bool STgaImage::unload_rle_data(std::ofstream &out) const {
     const std::uint8_t max_chunk_length = 128;
     size_t npixels = w*h;
     size_t curpix = 0;
@@ -187,21 +187,21 @@ bool TGAImage::unload_rle_data(std::ofstream &out) const {
     return true;
 }
 
-TGAColor TGAImage::get(const int x, const int y) const {
+STgaColor STgaImage::get(const int x, const int y) const {
     if (!data.size() || x<0 || y<0 || x>=w || y>=h)
         return {};
-    TGAColor ret = {0, 0, 0, 0, bpp};
+    STgaColor ret = {0, 0, 0, 0, bpp};
     const std::uint8_t *p = data.data()+(x+y*w)*bpp;
     for (int i=bpp; i--; ret.bgra[i] = p[i]);
     return ret;
 }
 
-void TGAImage::set(int x, int y, const TGAColor &c) {
+void STgaImage::set(int x, int y, const STgaColor &c) {
     if (!data.size() || x<0 || y<0 || x>=w || y>=h) return;
     memcpy(data.data()+(x+y*w)*bpp, c.bgra, bpp);
 }
 
-void TGAImage::flip_horizontally() {
+void STgaImage::flip_horizontally() {
     int half = w>>1;
     for (int i=0; i<half; i++)
         for (int j=0; j<h; j++)
@@ -209,7 +209,7 @@ void TGAImage::flip_horizontally() {
                 std::swap(data[(i+j*w)*bpp+b], data[(w-1-i+j*w)*bpp+b]);
 }
 
-void TGAImage::flip_vertically() {
+void STgaImage::flip_vertically() {
     int half = h>>1;
     for (int i=0; i<w; i++)
         for (int j=0; j<half; j++)
@@ -217,11 +217,11 @@ void TGAImage::flip_vertically() {
                 std::swap(data[(i+j*w)*bpp+b], data[(i+(h-1-j)*w)*bpp+b]);
 }
 
-int TGAImage::width() const {
+int STgaImage::width() const {
     return w;
 }
 
-int TGAImage::height() const {
+int STgaImage::height() const {
     return h;
 }
 

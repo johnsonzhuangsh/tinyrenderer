@@ -31,7 +31,7 @@ struct Shader : IShader {
         gl_Position = g_m4x4Project*gl_Position;
     }
 
-    virtual bool fragment(const vec3 bar, TGAColor &gl_FragColor) {
+    virtual bool fragment(const vec3 bar, STgaColor &gl_FragColor) {
         vec3 bn = (varying_nrm*bar).normalized(); // per-vertex normal interpolation
         vec2 uv = varying_uv*bar; // tex coord interpolation
 
@@ -47,7 +47,7 @@ struct Shader : IShader {
         vec3 r = (n*(n*uniform_l)*2 - uniform_l).normalized(); // reflected light direction, specular mapping is described here: https://github.com/ssloy/tinyrenderer/wiki/Lesson-6-Shaders-for-the-software-renderer
         double spec = std::pow(std::max(-r.z, 0.), 5+sample2D(model.specular(), uv)[0]); // specular intensity, note that the camera lies on the z-axis (in view), therefore simple -r.z
 
-        TGAColor c = sample2D(model.diffuse(), uv);
+        STgaColor c = sample2D(model.diffuse(), uv);
         for (int i : {0,1,2})
             gl_FragColor[i] = std::min<int>(10 + c[i]*(diff + spec), 255); // (a bit of ambient light, diff + spec), clamp the result
 
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    TGAImage sRenderTgt(g_iRenderTgtW, g_iRenderTgtH, TGAImage::RGB); // output image / render target
+    STgaImage sRenderTgt(g_iRenderTgtW, g_iRenderTgtH, STgaImage::RGB); // output image / render target
     lookat(g_v3CamPos, g_v3CamDir, g_v3CamUp);                        // build the g_m4x4ModelView matrix
     viewport(g_iRenderTgtW/8, g_iRenderTgtH/8, g_iRenderTgtW*3/4, g_iRenderTgtH*3/4); // build the Viewport matrix
     projection((g_v3CamPos-g_v3CamDir).norm());                    // build the g_m4x4Project matrix
@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
             triangle(clip_vert, shader, sRenderTgt, zbuffer); // actual rasterization routine call
         }
     }
-    sRenderTgt.write_tga_file("sRenderTgt.tga");
+    sRenderTgt.write_tga_file("render_target.tga");
     return 0;
 }
 
