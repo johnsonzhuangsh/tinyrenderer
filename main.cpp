@@ -56,10 +56,12 @@ struct Shader : IShader {
 };
 
 int main(int argc, char** argv) {
-    if (2>argc) {
-        std::cerr << "Usage: " << argv[0] << " obj/model.obj" << std::endl;
+    // CLI options checking
+    if (2 > argc) {
+        std::cerr << "Usage: " << argv[0] << " ../obj/model.obj1 ../obj/model.obj2" << std::endl;
         return 1;
     }
+
     TGAImage framebuffer(width, height, TGAImage::RGB); // the output image
     lookat(eye, center, up);                            // build the ModelView matrix
     viewport(width/8, height/8, width*3/4, height*3/4); // build the Viewport matrix
