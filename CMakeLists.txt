@@ -1,3 +1,5 @@
+# CMake references
+#   - How cmake generate makefile: https://www.toutiao.com/article/7243047185863197199/?app=news_article&source=m_redirect&wid=1691545510659
 cmake_minimum_required (VERSION 3.1)
 project(tinyrenderer)
 
