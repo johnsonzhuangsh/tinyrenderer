@@ -1,0 +1,1 @@
+- For SW tesellator, check reference https://github.com/johnsonzhuangsh/tesselator
