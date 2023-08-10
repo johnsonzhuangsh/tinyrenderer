@@ -4,5 +4,6 @@
         "nfaces",
         "nthvert",
         "zbuffer"
-    ]
+    ],
+    "C_Cpp.default.compilerPath": "/usr/bin/g++-9"
 }

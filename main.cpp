@@ -9,12 +9,12 @@ constexpr vec3  g_v3CamPos{1,1,3};   // camera position
 constexpr vec3  g_v3CamDir{0,0,0};   // camera direction
 constexpr vec3  g_v3CamUp{0,1,0};    // camera camera vector
 
-extern SMatrix<4,4> g_m4x4ModelView;     // "OpenGL" state matrices
+extern SMatrix<4,4> g_m4x4ModelView; // "OpenGL" state matrices
 extern SMatrix<4,4> g_m4x4Project;
 
 struct Shader : SIShader {
     const Model &cModel;
-    vec3 uniform_l;       // light direction in view coordinates
+    vec3 uniform_l;           // light direction in view coordinates
     SMatrix<2,3> varying_uv;  // triangle uv coordinates, written by the vertex sShader, read by the fragment sShader
     SMatrix<3,3> varying_nrm; // normal per vertex to be interpolated by FS
     SMatrix<3,3> view_tri;    // triangle in view coordinates
