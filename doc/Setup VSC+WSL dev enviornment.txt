@@ -1,7 +1,7 @@
 1. Enable/install WSL w/ desired Linux distro
    - Enable: https://learn.microsoft.com/en-us/windows/wsl/install in PowerShell with admin permission
      > wsl --install
-     > wsl --list --online 
+     > wsl --list --online
 	 > wsl --install -d Ubuntu-22.04
 	 > wsl -l -v						  // List distros + version, if it's ver1 & like to change to 2 (HW based), follow below stpes
 	 > wsl --set-version Ubuntu-22.04 2   // Change only Ubuntu-22.04 to 2, for prerequisites check below troubleshooting
@@ -19,7 +19,7 @@
    > sudo apt install cmake               // cmake
    > sudo apt install imagemagick         // free CLI image tools, ref https://linuxopsys.com/topics/install-latest-imagemagick-on-ubuntu-20-04
    > other pkgs
-3. Shell/git config 
+3. Shell/git config
    > copy/override .vscode/.bashrc to ~/.bashrc;
    > run "echo set completion-ignore-case on | sudo tee -a /etc/inputrc" in bash for case insensitive;
    > git config --global user.name "Johnson ZHUANG"
@@ -27,3 +27,4 @@
 4. VSCode
    > Install MSFT WSL + Remote (SSH/explorer/etc) extensions
    > In remote explorer view, the WSL Linux distro should show up. Clik the "-> Connect in current window" to reload VSC connected to WSL as remote
+   > In extensions view, install related C++/tool (like tga preview) extensions into WSL;
