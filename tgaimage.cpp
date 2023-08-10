@@ -29,12 +29,12 @@ bool STgaImage::read_tga_file(const std::string filename) {
     if (3==header.datatypecode || 2==header.datatypecode) {
         in.read(reinterpret_cast<char *>(data.data()), nbytes);
         if (!in.good()) {
-            std::cerr << "an error occured while reading the data\n";
+            std::cerr << "an error occurred while reading the data\n";
             return false;
         }
     } else if (10==header.datatypecode||11==header.datatypecode) {
         if (!load_rle_data(in)) {
-            std::cerr << "an error occured while reading the data\n";
+            std::cerr << "an error occurred while reading the data\n";
             return false;
         }
     } else {

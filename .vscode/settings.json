@@ -1,6 +1,9 @@
 {
     "cSpell.words": [
+        "bitsperpixel",
         "CreateViewTransformMatrix",
+        "datatypecode",
+        "imagedescriptor",
         "nfaces",
         "nthvert",
         "zbuffer"
