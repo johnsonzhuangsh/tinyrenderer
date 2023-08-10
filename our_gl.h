@@ -12,5 +12,5 @@ struct SIShader {
     virtual bool fragment(const vec3 bar, STgaColor &color) = 0;
 };
 
-void triangle(const vec4 clip_verts[3], SIShader &shader, STgaImage &image, std::vector<double> &zbuffer);
+void RasterizeTriangle(const vec4 clip_verts[3], SIShader &shader, STgaImage &image, std::vector<double> &zbuffer);
 

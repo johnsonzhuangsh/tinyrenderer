@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    // Prepare transformation matrixs + z/c buffers
+    // Prepare transformation matrixes + z/c buffers
     CreateViewTransformMatrix(g_v3CamPos, g_v3CamDir, g_v3CamUp);        // build the view matrix
     CreateViewportMatrix(g_iRenderTgtW/8, g_iRenderTgtH/8, g_iRenderTgtW*3/4, g_iRenderTgtH*3/4); // build the Viewport matrix
     CreateProjectMatrix((g_v3CamPos-g_v3CamDir).norm());                 // build the g_m4x4Project matrix
@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
             vec4 vecClipVtxs[3]; // triangle coordinates (clip coordinates), written by VS, read by PS
             for (int iVtxIdx : {0,1,2})
                 sShader.vertex(iFaceIdx, iVtxIdx, vecClipVtxs[iVtxIdx]); // call VS for each triangle vertex
-            triangle(vecClipVtxs, sShader, sRenderTgt, vecZBuffer);      // actual rasterization routine call
+            RasterizeTriangle(vecClipVtxs, sShader, sRenderTgt, vecZBuffer);      // actual rasterization routine call
         }
     }
 

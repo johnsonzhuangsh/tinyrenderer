@@ -6,6 +6,9 @@
         "imagedescriptor",
         "nfaces",
         "nthvert",
+        "rasterizator",
+        "verts",
+        "Vtxs",
         "zbuffer"
     ],
     "C_Cpp.default.compilerPath": "/usr/bin/g++-9"
