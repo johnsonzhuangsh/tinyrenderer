@@ -2,22 +2,26 @@
    - Enable: https://learn.microsoft.com/en-us/windows/wsl/install in PowerShell with admin permission
      > wsl --install
      > wsl --list --online
-	 > wsl --install -d Ubuntu-22.04
-	 > wsl -l -v						  // List distros + version, if it's ver1 & like to change to 2 (HW based), follow below stpes
-	 > wsl --set-version Ubuntu-22.04 2   // Change only Ubuntu-22.04 to 2, for prerequisites check below troubleshooting
-	 > wsl --set-default-version 2        // Change default version to 2 globally
+	  > wsl --install -d Ubuntu-20.04
+	  > wsl -l -v						        // List distros + version, if it's ver1 & like to change to 2 (HW based), follow below stpes
+	  > wsl --set-version Ubuntu-20.04 2   // Change only Ubuntu-22.04 to 2, for prerequisites check below troubleshooting
+	  > wsl --set-default-version 2        // Change default version to 2 globally
    - Troubleshooting
-     > Make sure trusted installer service is on with cmd "SC config trustedinstaller start= auto" in PowerShell w/ admin, ref https://github.com/Microsoft/WSL/issues/2832
-	 > Make sure WSL enabled on "Turn Windows features onor off";
-	 > WSL1 is SW virtualization while WSL2 is based on HW virtualization (faster by conflict with other VM SW which needs HW virtualization like VMWare/VirtualPC/etc)
+     > Make Sure Below Serivces/Features Enabled
+       . "trusted installer service" w/ "SC config trustedinstaller start= auto" in PS w/ admin, ref https://github.com/Microsoft/WSL/issues/2832
+	    . WSL WinOS feature enabled on "Turn Windows features onor off";
+     > WSL1 Restrictions
+       . WSL1 seems have issues to support Ubuntu-22.04 like gdb can not set breakpoints, use Ubuntu-20.04 instead w/ older version gcc/gdb/etc;
+	  > WSL2 Enablement
+       WSL1 is SW virtualization while WSL2 is based on HW virtualization (faster but conflict with other VM SWs which needs HW virtualization like VMWare/VirtualPC/etc)
        . To use WSL2, make sure WSL2 WinOS pkg installed https://learn.microsoft.com/en-us/windows/wsl/install-manual#step-4---download-the-linux-kernel-update-package;
        . Enable the Virtual Machine Platform Windows feature in WinOS "Turn Windows features onor off" and ensure virtualization is enabled in the BIOS;
 2. Set up WSL Linux for C++ development
-   > sudo apt update && sudo apt upgrade  // Update Linux first
-   > sudo apt install build-essential     // Install gcc/g++ toolset
-   > sudo apt install gdb                 // gdb
-   > sudo apt install cmake               // cmake
-   > sudo apt install imagemagick         // free CLI image tools, ref https://linuxopsys.com/topics/install-latest-imagemagick-on-ubuntu-20-04
+   > sudo apt update && sudo apt upgrade -y  // Update Linux first
+   > sudo apt install build-essential -y     // Install gcc/g++ toolset
+   > sudo apt install gdb -y                 // gdb
+   > sudo apt install cmake -y               // cmake
+   > sudo apt install imagemagick -y         // free CLI image tools, ref https://linuxopsys.com/topics/install-latest-imagemagick-on-ubuntu-20-04
    > other pkgs
 3. Shell/git config
    > copy/override .vscode/.bashrc to ~/.bashrc;
