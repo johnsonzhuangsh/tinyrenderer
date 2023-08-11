@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(OpenMP)
 if(OPENMP_FOUND)
   # add "-g" to compile build version for debug, ref https://github.com/gitpod-io/gitpod/issues/4805#issuecomment-883228543
+  # add "-O0" to disable optimization, ref  https://stackoverflow.com/questions/5765899/how-to-disable-compiler-optimizations-in-gcc
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -g -O0")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -g -O0")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
